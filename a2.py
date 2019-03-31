@@ -1,37 +1,14 @@
-import cv2 as cv
-import numpy as np
-import vlfeat as vl
-from matplotlib import pyplot as plot
+import popupMessage as pop
+import least_square_plane as lsp
 
+msg = "CPS843 Assignment 2\n\nAuthors:\nMark Volfson - 500740834\nMichael Teitelbaum - 500747561\n\nThank you for your time!\n\nPress okay to continue..."
+pop.popupmsg(msg)
 
-left = cv.imread("parliament-left.jpg")
-leftg = cv.cvtColor(left, cv.COLOR_BGR2GRAY)
-right = cv.imread("parliament-right.jpg")
-rightg = cv.cvtColor(right, cv.COLOR_BGR2GRAY)
+msg = "In this assignment there are only 2 outputs:\n 1. A textbox asnwering question 1.3\n 2. The final panoramic image\n\nPress okay to continue..."
+pop.popupmsg(msg)
 
-sift = cv.ORB_create()
+a, b = lsp.lsp()
 
-left_kp, left_des = sift.detectAndCompute(leftg, None)
-right_kp, right_des = sift.detectAndCompute(rightg, None)
+msg = "Answer for question 1.3\n\nThe group truth values:\n3, 4, 6\n\nThe estimated plane values:\n"+str(b[0])[1:8]+", "+str(b[1])[1:8]+", "+str(b[2])[1:8]+"\n\nThe absolute difference between the above mentioned values:\n"+str(a[0])[1:8]+", "+str(a[0])[1:8]+", "+str(a[0])[1:8]+"\n\nPress okay to continue..."
+pop.popupmsg(msg)
 
-bfmatch = cv.BFMatcher(cv.NORM_HAMMING, crossCheck=True)
-match = bfmatch.match(left_des, right_des)
-match = sorted(match, key = lambda x:x.distance)
-matchpercent = 0.15
-goodmatchnum = int(len(match) * matchpercent)
-match = match[:goodmatchnum]
-points1 = np.zeros((len(match), 2), dtype=np.float32)
-points2 = np.zeros((len(match), 2), dtype=np.float32)
-
-for i, m in enumerate(match):
-    points1[i, :] = left_kp[m.queryIdx].pt
-    points2[i, :] = right_kp[m.trainIdx].pt
-
-points1 = points1.astype(np.float32)
-points2 = points2.astype(np.float32)
-affmat = cv.getAffineTransform(points1, points2)
-warp_right = cv.warpAffine(right, affmat, (right.shape[1], right.shape[0]))
-
-cv.imshow("Window", warp_right)
-cv.waitKey(0)
-cv.destroyAllWindows()
