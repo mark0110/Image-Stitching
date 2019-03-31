@@ -1,7 +1,6 @@
 import numpy as np
 
 def lsp():
-    a, b, c = 3, 4, 6
     var = np.array([[3, 4, 6]])
     var = np.transpose(var)
     x = np.random.rand(1, 500) * 9
